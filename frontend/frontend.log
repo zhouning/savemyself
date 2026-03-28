@@ -1,0 +1,52 @@
+
+> savemyself-frontend@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 4.3s (552 modules)
+ GET / 200 in 4461ms
+ ✓ Compiled in 114ms (279 modules)
+(node:31948) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ GET / 200 in 52ms
+ ✓ Compiled /_not-found in 285ms (538 modules)
+ GET /_next/static/chunks/app/history/page.js 404 in 353ms
+ GET /history 200 in 370ms
+ ✓ Compiled /login in 241ms (544 modules)
+ GET /_next/static/chunks/app/login/page.js 404 in 272ms
+ GET /login 200 in 280ms
+ GET /login? 200 in 50ms
+ GET / 200 in 33ms
+ GET /history 200 in 29ms
+ GET /?date=2026-03-28 200 in 73ms
+ GET /history 200 in 13ms
+ GET /?date=2026-03-28 200 in 52ms
+ GET /history 200 in 18ms
+ GET /history 200 in 70ms
+ GET /?date=2026-03-28 200 in 76ms
+ ✓ Compiled in 514ms (551 modules)
+ ✓ Compiled in 108ms (283 modules)
+ ✓ Compiled in 240ms (551 modules)
+ ✓ Compiled in 621ms (537 modules)
+ GET /?date=2026-03-28 200 in 94ms
+ ✓ Compiled /admin in 248ms (543 modules)
+ GET /admin 200 in 330ms
+ GET /admin 200 in 48ms
+ GET /admin 200 in 58ms
+ GET /admin 200 in 49ms
+ GET /admin 200 in 73ms
+ GET /admin 200 in 57ms
+ GET / 200 in 23ms
+ ✓ Compiled /history in 101ms (276 modules)
+ GET /history 200 in 180ms
+ GET /history 200 in 20ms
+ GET / 200 in 18ms
+ GET /admin 200 in 62ms
+ GET /history 200 in 42ms
+ GET / 200 in 14ms

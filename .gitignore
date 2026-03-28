@@ -1,0 +1,17 @@
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+backend/venv/
+backend/savemyself.db

@@ -1,0 +1,48 @@
+
+> savemyself-frontend@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 5.8s (552 modules)
+ GET / 200 in 6086ms
+ ✓ Compiled in 338ms (279 modules)
+ ✓ Compiled /_not-found in 151ms (490 modules)
+ GET /_next/static/webpack/d2d2cfb6a5ef660e.webpack.hot-update.json 404 in 300ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+(node:33764) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ Compiled / in 46ms (265 modules)
+ GET / 200 in 182ms
+ GET /_next/static/chunks/app/history/page.js 404 in 20ms
+ ✓ Compiled /history in 136ms (538 modules)
+ GET /history 200 in 196ms
+ GET / 200 in 29ms
+ GET / 200 in 68ms
+ GET /history 200 in 54ms
+ GET /history 200 in 13ms
+ GET /history 200 in 15ms
+ ✓ Compiled in 379ms (549 modules)
+ GET /history 200 in 62ms
+ GET /?date=2026-03-28 200 in 32ms
+ GET /history 200 in 13ms
+ ✓ Compiled /_not-found in 272ms (544 modules)
+ GET /_next/static/chunks/app/login/page.js 404 in 326ms
+ GET /login 200 in 346ms
+ GET /login 200 in 88ms
+ GET / 200 in 22ms
+ GET /history 200 in 19ms
+ GET /history 200 in 14ms
+ GET /history 200 in 18ms
+ GET /login 200 in 30ms
+ GET /login 200 in 62ms
+ GET / 200 in 25ms
+ GET /history 200 in 26ms
+ ✓ Compiled in 313ms (555 modules)
+ ✓ Compiled in 74ms (283 modules)
+[?25h
