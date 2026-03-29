@@ -17,6 +17,17 @@ class User(Base):
     # 用户的基本画像信息，有助于AI分析
     rhinitis_years = Column(Integer, default=0) # 患病年限
     primary_symptoms = Column(String, nullable=True) # 主要症状标签
+    
+    # 时空因果推断增强字段
+    rhinitis_type = Column(String, nullable=True)  # "季节性", "常年性", "混合型"
+    diagnosed_date = Column(Date, nullable=True)   # 确诊日期
+    family_history = Column(Boolean, default=False)  # 家族过敏史
+    has_asthma = Column(Boolean, default=False)      # 是否合并哮喘
+    has_eczema = Column(Boolean, default=False)      # 是否合并湿疹
+    known_allergens = Column(Text, nullable=True)  # JSON格式: ["尘螨", "花粉", "猫毛"]
+    occupation = Column(String, nullable=True)     # 职业 (用于职业暴露分析)
+    smoking_status = Column(String, nullable=True) # "从不", "曾经", "当前"
+    residence_type = Column(String, nullable=True) # "城市", "郊区", "农村"
 
     logs = relationship("DailyLog", back_populates="owner")
 

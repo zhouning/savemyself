@@ -15,6 +15,17 @@ class UserBase(BaseModel):
     primary_symptoms: Optional[str] = None
     is_active: Optional[bool] = True
     is_admin: Optional[bool] = False
+    
+    # 时空因果推断增强字段
+    rhinitis_type: Optional[str] = None
+    diagnosed_date: Optional[date] = None
+    family_history: Optional[bool] = False
+    has_asthma: Optional[bool] = False
+    has_eczema: Optional[bool] = False
+    known_allergens: Optional[str] = None
+    occupation: Optional[str] = None
+    smoking_status: Optional[str] = None
+    residence_type: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str

@@ -192,6 +192,75 @@ def read_logs(
     return logs
 
 # -----------------
+# Data Agent 导出 API
+# -----------------
+from typing import Optional
+@app.get("/export/logs", tags=["数据导出与因果推断"])
+def export_logs(
+    target_user_id: Optional[int] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    current_user: models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """导出鼻炎日志数据 (支持 Data Agent 连接器)"""
+    
+    # 权限检查
+    if target_user_id and target_user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="无权访问其他用户数据")
+
+    # 查询数据
+    query = db.query(models.DailyLog)
+    
+    if target_user_id:
+        query = query.filter(models.DailyLog.user_id == target_user_id)
+    elif not current_user.is_admin:
+        # 普通用户只能导出自己的
+        query = query.filter(models.DailyLog.user_id == current_user.id)
+        
+    if start_date:
+        query = query.filter(models.DailyLog.date >= start_date)
+    if end_date:
+        query = query.filter(models.DailyLog.date <= end_date)
+
+    logs = query.all()
+
+    # 简单脱敏转换，准备给因果分析用
+    export_data = []
+    for log in logs:
+        log_dict = {
+            "id": log.id,
+            "user_hash": hash(str(log.user_id)), # 简单哈希脱敏
+            "date": str(log.date),
+            "nasal_congestion": log.nasal_congestion,
+            "runny_nose": log.runny_nose,
+            "sneezing": log.sneezing,
+            "itchiness": log.itchiness,
+            "temperature": log.temperature,
+            "humidity": log.humidity,
+            "latitude": log.latitude,  # 注意：在真实的严格环境中可以对经纬度加随机噪声偏移
+            "longitude": log.longitude,
+            "aqi": log.aqi,
+            "pm25": log.pm25,
+            "pm10": log.pm10,
+            "no2": log.no2,
+            "o3": log.o3,
+            "co": log.co,
+            "so2": log.so2,
+            "precipitation": log.precipitation,
+            "pressure": log.pressure,
+            "wind_speed": log.wind_speed,
+            "sleep_quality": log.sleep_quality,
+            "stress_level": log.stress_level,
+            "exercise_minutes": log.exercise_minutes,
+            "nasal_wash": log.nasal_wash,
+            "medications": log.medications
+        }
+        export_data.append(log_dict)
+
+    return export_data
+
+# -----------------
 # AI 引擎 API
 # -----------------
 @app.get("/ai/analyze", tags=["AI 分析与决策引擎"])
