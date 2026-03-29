@@ -36,6 +36,8 @@ class DailyLogBase(BaseModel):
     
     temperature: Optional[float] = None
     humidity: Optional[float] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     aqi: Optional[int] = None
     allergens_info: Optional[str] = None
     

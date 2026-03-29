@@ -18,6 +18,8 @@ function HomeForm() {
     itchiness: 0,
     temperature: "",
     humidity: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
     sleep_quality: 5,
     stress_level: 5,
     diet_notes: "",
@@ -56,6 +58,8 @@ function HomeForm() {
             itchiness: data.itchiness || 0,
             temperature: data.temperature !== null ? String(data.temperature) : "",
             humidity: data.humidity !== null ? String(data.humidity) : "",
+            latitude: data.latitude !== null ? Number(data.latitude) : null,
+            longitude: data.longitude !== null ? Number(data.longitude) : null,
             sleep_quality: data.sleep_quality || 5,
             stress_level: data.stress_level || 5,
             diet_notes: data.diet_notes || "",
@@ -78,6 +82,8 @@ function HomeForm() {
             itchiness: 0,
             temperature: "",
             humidity: "",
+            latitude: null,
+            longitude: null,
             sleep_quality: 5,
             stress_level: 5,
             diet_notes: "",
@@ -120,9 +126,11 @@ function HomeForm() {
             setFormData(prev => ({
               ...prev,
               temperature: String(data.current.temperature_2m),
-              humidity: String(data.current.relative_humidity_2m)
+              humidity: String(data.current.relative_humidity_2m),
+              latitude: Number(latitude),
+              longitude: Number(longitude)
             }));
-            setStatus("✅ 天气获取成功");
+            setStatus("✅ 天气及位置获取成功");
           }
         } catch (error) {
           console.error("获取天气失败:", error);
@@ -162,6 +170,8 @@ function HomeForm() {
           itchiness: Number(formData.itchiness),
           temperature: formData.temperature ? Number(formData.temperature) : null,
           humidity: formData.humidity ? Number(formData.humidity) : null,
+          latitude: formData.latitude !== null ? Number(formData.latitude) : null,
+          longitude: formData.longitude !== null ? Number(formData.longitude) : null,
           sleep_quality: Number(formData.sleep_quality),
           stress_level: Number(formData.stress_level)
         })

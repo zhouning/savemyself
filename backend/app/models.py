@@ -36,6 +36,8 @@ class DailyLog(Base):
     # 环境 Environment (后续可以接第三方天气API自动获取，目前手动记录)
     temperature = Column(Float, nullable=True)    # 气温
     humidity = Column(Float, nullable=True)       # 湿度 (%)
+    latitude = Column(Float, nullable=True)       # 纬度 (用户定位)
+    longitude = Column(Float, nullable=True)      # 经度 (用户定位)
     aqi = Column(Integer, nullable=True)          # 空气质量指数
     allergens_info = Column(String, nullable=True)# 过敏原信息 (如"花粉高", "尘螨高")
     
