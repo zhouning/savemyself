@@ -29,6 +29,7 @@ function HomeForm() {
   const [status, setStatus] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [debugInfo, setDebugInfo] = useState("正在初始化...");
+  const [isFetchingWeather, setIsFetchingWeather] = useState(false);
 
   // 监听 URL 参数的变化 (从历史页面跳转过来时)
   useEffect(() => {
@@ -99,6 +100,44 @@ function HomeForm() {
 
     fetchLogForDate();
   }, [formData.date]);
+
+  const fetchWeather = () => {
+    if (!navigator.geolocation) {
+      alert("您的浏览器不支持地理位置功能");
+      return;
+    }
+    
+    setIsFetchingWeather(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          // 使用免费的 Open-Meteo API 获取气温和湿度
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m`);
+          const data = await res.json();
+          
+          if (data && data.current) {
+            setFormData(prev => ({
+              ...prev,
+              temperature: String(data.current.temperature_2m),
+              humidity: String(data.current.relative_humidity_2m)
+            }));
+            setStatus("✅ 天气获取成功");
+          }
+        } catch (error) {
+          console.error("获取天气失败:", error);
+          setStatus("❌ 获取天气失败，请手动填写");
+        } finally {
+          setIsFetchingWeather(false);
+        }
+      },
+      (error) => {
+        console.error("获取位置失败:", error);
+        setStatus("❌ 无法获取位置权限，请手动填写");
+        setIsFetchingWeather(false);
+      }
+    );
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -201,7 +240,17 @@ function HomeForm() {
         
         {/* 生活方式 & 饮食 */}
         <div className="pt-4 border-t border-slate-100 space-y-4">
-          <h3 className="font-semibold text-slate-800">饮食与环境</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold text-slate-800">饮食与环境</h3>
+            <button 
+              type="button" 
+              onClick={fetchWeather}
+              disabled={isFetchingWeather}
+              className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full font-medium hover:bg-blue-100 transition-colors disabled:opacity-50 flex items-center gap-1"
+            >
+              {isFetchingWeather ? "获取中..." : "📍 自动获取温湿度"}
+            </button>
+          </div>
           
           <div>
             <label className="block text-sm text-slate-600 mb-1">特殊饮食 (可能是诱因)</label>
@@ -211,11 +260,11 @@ function HomeForm() {
           <div className="grid grid-cols-2 gap-4">
              <div>
               <label className="block text-sm text-slate-600 mb-1">气温 (°C)</label>
-              <input type="number" step="0.1" name="temperature" value={formData.temperature} onChange={handleChange} placeholder="25.5" className="w-full p-2 border border-slate-300 rounded-lg outline-none" />
+              <input type="number" step="0.1" name="temperature" value={formData.temperature} onChange={handleChange} placeholder="25.5" className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-sm text-slate-600 mb-1">湿度 (%)</label>
-              <input type="number" step="1" name="humidity" value={formData.humidity} onChange={handleChange} placeholder="45" className="w-full p-2 border border-slate-300 rounded-lg outline-none" />
+              <input type="number" step="1" name="humidity" value={formData.humidity} onChange={handleChange} placeholder="45" className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
         </div>
