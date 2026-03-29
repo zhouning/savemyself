@@ -31,7 +31,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const toggleUserStatus = async (userId: int, currentStatus: boolean) => {
+  const toggleUserStatus = async (userId: number, currentStatus: boolean) => {
     try {
       const response = await fetchWithAuth(`/admin/users/${userId}/status`, {
         method: "PUT",
