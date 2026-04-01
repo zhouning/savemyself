@@ -19,8 +19,10 @@ def analyze_logs(db: Session, user_id: int) -> str:
         # 获取用户的基本画像
         user = db.query(models.User).filter(models.User.id == user_id).first()
         user_info = ""
+        ai_model = "gemini-2.5-pro"  # 默认模型
         if user:
             user_info = f"患病年限：{user.rhinitis_years or 0}年。主要症状：{user.primary_symptoms or '未填写'}。"
+            ai_model = user.preferred_ai_model or "gemini-2.5-pro"
 
         # 仅获取当前用户的记录
         logs = db.query(models.DailyLog)\
@@ -81,7 +83,7 @@ def analyze_logs(db: Session, user_id: int) -> str:
 {json.dumps(log_data, ensure_ascii=False, indent=2)}
 """
 
-        model = genai.GenerativeModel('gemini-2.5-pro')
+        model = genai.GenerativeModel(ai_model)
         response = model.generate_content(prompt)
         return response.text
 

@@ -315,6 +315,16 @@ def export_logs(
 # -----------------
 # AI 引擎 API
 # -----------------
+@app.get("/ai/models", tags=["AI 分析与决策引擎"])
+def get_available_models():
+    """获取可用的AI模型列表"""
+    models = [
+        {"value": "gemini-2.5-pro", "label": "Gemini 2.5 Pro (推荐 - 最强分析能力)"},
+        {"value": "gemini-2.5-flash", "label": "Gemini 2.5 Flash (快速响应)"},
+        {"value": "gemini-2.0-flash", "label": "Gemini 2.0 Flash (经济实惠)"},
+    ]
+    return {"models": models}
+
 @app.get("/ai/analyze", tags=["AI 分析与决策引擎"])
 def get_ai_analysis(
     db: Session = Depends(get_db),

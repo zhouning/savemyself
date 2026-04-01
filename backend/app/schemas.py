@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from datetime import date
+from datetime import date, datetime
 from typing import Optional, List
 
 class Token(BaseModel):
@@ -26,6 +26,7 @@ class UserBase(BaseModel):
     occupation: Optional[str] = None
     smoking_status: Optional[str] = None
     residence_type: Optional[str] = None
+    preferred_ai_model: Optional[str] = "gemini-2.5-pro"
 
 class UserCreate(UserBase):
     password: str
@@ -52,6 +53,23 @@ class DailyLogBase(BaseModel):
     aqi: Optional[int] = None
     allergens_info: Optional[str] = None
     
+    # 时空因果推断增强字段: 详细污染物与气象
+    pm25: Optional[float] = None
+    pm10: Optional[float] = None
+    no2: Optional[float] = None
+    o3: Optional[float] = None
+    co: Optional[float] = None
+    so2: Optional[float] = None
+    precipitation: Optional[float] = None
+    pressure: Optional[float] = None
+    wind_speed: Optional[float] = None
+    env_data_source: Optional[str] = None
+    
+    # 室内环境与暴露 (Indoor Environment)
+    pet_contact: Optional[bool] = False
+    indoor_ventilation: Optional[int] = 5
+    indoor_dust: Optional[int] = 5
+    
     sleep_quality: Optional[int] = None
     stress_level: Optional[int] = None
     exercise_minutes: Optional[int] = 0
@@ -69,6 +87,17 @@ class DailyLogCreate(DailyLogBase):
 class DailyLog(DailyLogBase):
     id: int
     user_id: int
+
+    class Config:
+        from_attributes = True
+
+class LoginAudit(BaseModel):
+    id: int
+    email: str
+    success: bool
+    ip_address: Optional[str] = None
+    timestamp: datetime
+    user_agent: Optional[str] = None
 
     class Config:
         from_attributes = True
