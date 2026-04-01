@@ -319,6 +319,7 @@ def export_logs(
 def get_available_models():
     """获取可用的AI模型列表"""
     models = [
+        {"value": "gemini-3.1-pro-preview", "label": "Gemini 3.1 Pro Preview (最新 - 实验性)"},
         {"value": "gemini-2.5-pro", "label": "Gemini 2.5 Pro (推荐 - 最强分析能力)"},
         {"value": "gemini-2.5-flash", "label": "Gemini 2.5 Flash (快速响应)"},
         {"value": "gemini-2.0-flash", "label": "Gemini 2.0 Flash (经济实惠)"},
