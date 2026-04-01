@@ -81,7 +81,7 @@ def analyze_logs(db: Session, user_id: int) -> str:
 {json.dumps(log_data, ensure_ascii=False, indent=2)}
 """
 
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-2.5-pro')
         response = model.generate_content(prompt)
         return response.text
 
