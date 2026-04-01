@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from datetime import date, datetime, timedelta
 from typing import List
@@ -10,8 +10,9 @@ from . import models, schemas, ai_engine, auth
 from .database import engine, get_db
 from .config import settings
 
-# 创建数据库表
-models.Base.metadata.create_all(bind=engine)
+# 注意：为了避免每次 Serverless 冷启动时都去远端数据库检查表结构导致启动极慢（长达十几秒），
+# 我们在生产环境中移除了 models.Base.metadata.create_all(bind=engine)。
+# 数据库表结构应通过单独的脚本或 Alembic 迁移工具来管理。
 
 app = FastAPI(
     title="SaveMyself API", 
@@ -55,18 +56,44 @@ def get_current_admin_user(current_user: models.User = Depends(get_current_activ
         raise HTTPException(status_code=403, detail="需要管理员权限")
     return current_user
 
+def get_client_ip(request: Request):
+    """尝试获取客户端真实 IP（处理 GCP/Nginx 代理后的 IP）"""
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host
+
 # -----------------
 # 用户认证 API
 # -----------------
 @app.post("/token", response_model=schemas.Token, tags=["认证"])
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
-    if not user or not auth.verify_password(form_data.password, user.hashed_password):
+    ip = get_client_ip(request)
+    user_agent = request.headers.get("User-Agent")
+    
+    # 验证密码
+    success = False
+    if user and auth.verify_password(form_data.password, user.hashed_password):
+        success = True
+        
+    # 记录审计日志
+    audit_log = models.LoginAudit(
+        email=form_data.username,
+        success=success,
+        ip_address=ip,
+        user_agent=user_agent
+    )
+    db.add(audit_log)
+    db.commit()
+
+    if not success:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="邮箱或密码不正确",
             headers={"WWW-Authenticate": "Bearer"},
         )
+        
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = auth.create_access_token(
         data={"sub": str(user.id)}, expires_delta=access_token_expires
@@ -101,6 +128,20 @@ def read_users_me(current_user: models.User = Depends(get_current_active_user)):
     """获取当前登录用户信息"""
     return current_user
 
+@app.put("/users/me", response_model=schemas.User, tags=["用户管理"])
+def update_user_profile(
+    user_update: schemas.UserBase,
+    current_user: models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """更新当前用户资料"""
+    for key, value in user_update.model_dump(exclude={'email'}).items():
+        if value is not None:
+            setattr(current_user, key, value)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
 # -----------------
 # 管理员 API
 # -----------------
@@ -133,6 +174,17 @@ def update_user_status(
     db.commit()
     db.refresh(user)
     return user
+
+@app.get("/admin/login-logs", response_model=List[schemas.LoginAudit], tags=["后台管理"])
+def read_login_logs(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    admin_user: models.User = Depends(get_current_admin_user)
+):
+    """(Admin) 获取所有用户的登录日志"""
+    logs = db.query(models.LoginAudit).order_by(models.LoginAudit.timestamp.desc()).offset(skip).limit(limit).all()
+    return logs
 
 # -----------------
 # 打卡记录 API
@@ -269,6 +321,12 @@ def get_ai_analysis(
     current_user: models.User = Depends(get_current_active_user)
 ):
     """触发 AI 引擎，分析当前用户的打卡数据并生成个性化建议"""
-    analysis_result = ai_engine.analyze_logs(db, user_id=current_user.id)
-    return {"status": "success", "analysis": analysis_result}
+    try:
+        analysis_result = ai_engine.analyze_logs(db, user_id=current_user.id)
+        return {"status": "success", "analysis": analysis_result}
+    except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"AI分析API错误: {error_detail}")
+        raise HTTPException(status_code=500, detail=f"AI分析失败: {str(e)}")
 

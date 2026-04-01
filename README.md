@@ -1,8 +1,33 @@
-# SaveMyself - 鼻炎治愈AI探索系统
+# SaveMyself - AI驱动的慢性鼻炎个性化管理平台
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+
+🌐 **在线体验**: [https://www.ibiyan.com](https://www.ibiyan.com)
 
 ## 项目背景
-本项目最初源于为十多年的慢性鼻炎寻找治愈方案的个人诉求。鉴于该系统的潜力，现已将其架构升级为 **多用户 SaaS (Software as a Service) 平台**。
-系统利用人工智能（大语言模型、RAG检索增强生成、数据分析）技术，结合AI内置的庞大医学知识库，为**所有饱受鼻炎折磨的患者**提供个性化的治愈或缓解方案。
+本项目源于为13年慢性鼻炎寻找治愈方案的真实需求。现已升级为 **多用户 SaaS 平台**，利用 AI 大语言模型（Google Gemini）、环境数据追踪（Open-Meteo API）和因果推断技术，为全球鼻炎患者提供个性化的症状管理和归因分析。
+
+## ✨ 核心功能
+
+### 📊 多维度症状追踪
+- **症状评分**: 鼻塞、流涕、打喷嚏、鼻痒（0-10分）
+- **环境数据**: 自动获取温度、湿度、PM2.5、PM10、NO2、O3、CO、SO2、AQI等11项指标
+- **生活方式**: 睡眠质量、压力水平、运动时长、饮食记录
+- **干预措施**: 药物使用、洗鼻、其他治疗方案
+
+### 🤖 AI深度归因分析
+- 基于 Google Gemini 2.0 的智能分析引擎
+- 识别个性化的症状触发因素（Triggers）
+- 发现有效的缓解措施（Relievers）
+- 提供基于数据的下一步行动建议
+
+### 🔐 多租户架构
+- JWT身份认证，7天token有效期
+- 用户数据完全隔离
+- 管理员后台支持
+- 登录审计日志
 
 ## 为什么需要长期数据追踪？(科学依据)
 根据最新国际顶级医学文献（如 PubMed 收录的权威研究、Meta分析），慢性鼻炎/过敏性鼻炎的诱发因素（Triggers）高度个性化且极其复杂。研究表明，以下因素在不同患者身上表现出截然不同的相关性：
@@ -34,12 +59,47 @@
 ### 4. 交互界面 (Frontend UI)
 *   基于 Next.js 的现代化移动端友好界面，支持用户注册/登录、每日快捷打卡、历史追踪以及一键获取专属 AI 分析报告。
 
-## 技术栈
-*   **后端**: Python (FastAPI) + SQLAlchemy
-*   **AI/大模型**: Google Gemini (多模态推理与数据关联分析)
-*   **数据库**: PostgreSQL (存储多用户结构化数据)
-*   **前端**: Next.js + React + TailwindCSS
-*   **部署架构**: Google Cloud Run (Serverless，支持高并发和自动弹性伸缩)
+## 🛠 技术栈
+
+**后端**
+- FastAPI + SQLAlchemy + PostgreSQL
+- Google Gemini 2.0 Flash (AI分析)
+- Open-Meteo API (环境数据)
+- JWT认证 + bcrypt密码加密
+
+**前端**
+- Next.js 14 + React 18 + TypeScript
+- TailwindCSS + Lucide Icons
+- 移动端优先的响应式设计
+
+**部署**
+- Google Cloud Run (Serverless)
+- Docker容器化
+- PostgreSQL云数据库
+
+## 🚀 快速开始
+
+### 后端启动
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8080
+```
+
+### 前端启动
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 环境变量配置
+```bash
+# backend/.env
+DATABASE_URL=postgresql://user:password@host:port/dbname
+GEMINI_API_KEY=your_gemini_api_key
+ENVIRONMENT=development
+```
 
 ## 数据隐私与免责声明
 **隐私声明：** 本系统高度重视用户医疗数据的隐私，采用严格的数据隔离措施。位置信息等敏感数据仅用于气候与环境建模。
