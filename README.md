@@ -18,10 +18,15 @@
 - **干预措施**: 药物使用、洗鼻、其他治疗方案
 
 ### 🤖 AI深度归因分析
-- 基于 Google Gemini 2.0 的智能分析引擎
+- **多模型支持**: 用户可自由选择AI分析模型
+  - Gemini 3.1 Pro Preview (最新实验性)
+  - Gemini 2.5 Pro (推荐 - 最强分析能力)
+  - Gemini 2.5 Flash (快速响应)
+  - Gemini 2.0 Flash (经济实惠)
 - 识别个性化的症状触发因素（Triggers）
 - 发现有效的缓解措施（Relievers）
 - 提供基于数据的下一步行动建议
+- 模型偏好自动保存至用户配置
 
 ### 🔐 多租户架构
 - JWT身份认证，7天token有效期
@@ -63,7 +68,7 @@
 
 **后端**
 - FastAPI + SQLAlchemy + PostgreSQL
-- Google Gemini 2.0 Flash (AI分析)
+- Google Gemini 多模型引擎 (2.0 / 2.5 / 3.1)
 - Open-Meteo API (环境数据)
 - JWT认证 + bcrypt密码加密
 
