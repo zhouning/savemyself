@@ -20,6 +20,15 @@ function HomeForm() {
     humidity: "",
     latitude: null as number | null,
     longitude: null as number | null,
+    pm25: "",
+    pm10: "",
+    no2: "",
+    o3: "",
+    co: "",
+    so2: "",
+    precipitation: "",
+    pressure: "",
+    wind_speed: "",
     sleep_quality: 5,
     stress_level: 5,
     diet_notes: "",
@@ -60,6 +69,15 @@ function HomeForm() {
             humidity: data.humidity !== null ? String(data.humidity) : "",
             latitude: data.latitude !== null ? Number(data.latitude) : null,
             longitude: data.longitude !== null ? Number(data.longitude) : null,
+            pm25: data.pm25 !== null ? String(data.pm25) : "",
+            pm10: data.pm10 !== null ? String(data.pm10) : "",
+            no2: data.no2 !== null ? String(data.no2) : "",
+            o3: data.o3 !== null ? String(data.o3) : "",
+            co: data.co !== null ? String(data.co) : "",
+            so2: data.so2 !== null ? String(data.so2) : "",
+            precipitation: data.precipitation !== null ? String(data.precipitation) : "",
+            pressure: data.pressure !== null ? String(data.pressure) : "",
+            wind_speed: data.wind_speed !== null ? String(data.wind_speed) : "",
             sleep_quality: data.sleep_quality || 5,
             stress_level: data.stress_level || 5,
             diet_notes: data.diet_notes || "",
@@ -75,6 +93,7 @@ function HomeForm() {
           const errorData = await response.json().catch(() => ({ detail: "Unknown" }));
           // 如果是404未找到，重置表单为默认状态(保留当前日期)
           setFormData(prev => ({
+            ...prev,
             date: prev.date,
             nasal_congestion: 0,
             runny_nose: 0,
@@ -84,6 +103,15 @@ function HomeForm() {
             humidity: "",
             latitude: null,
             longitude: null,
+            pm25: "",
+            pm10: "",
+            no2: "",
+            o3: "",
+            co: "",
+            so2: "",
+            precipitation: "",
+            pressure: "",
+            wind_speed: "",
             sleep_quality: 5,
             stress_level: 5,
             diet_notes: "",
@@ -118,23 +146,36 @@ function HomeForm() {
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          // 使用免费的 Open-Meteo API 获取气温和湿度
-          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m`);
-          const data = await res.json();
+          // 使用免费的 Open-Meteo API 获取气象数据
+          const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m`);
+          const weatherData = await weatherRes.json();
+
+          // 获取空气质量污染物数据
+          const aqRes = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone`);
+          const aqData = await aqRes.json();
           
-          if (data && data.current) {
+          if (weatherData && weatherData.current) {
             setFormData(prev => ({
               ...prev,
-              temperature: String(data.current.temperature_2m),
-              humidity: String(data.current.relative_humidity_2m),
+              temperature: String(weatherData.current.temperature_2m),
+              humidity: String(weatherData.current.relative_humidity_2m),
+              precipitation: String(weatherData.current.precipitation || ""),
+              pressure: String(weatherData.current.surface_pressure || ""),
+              wind_speed: String(weatherData.current.wind_speed_10m || ""),
+              pm25: aqData?.current?.pm2_5 ? String(aqData.current.pm2_5) : prev.pm25,
+              pm10: aqData?.current?.pm10 ? String(aqData.current.pm10) : prev.pm10,
+              co: aqData?.current?.carbon_monoxide ? String(aqData.current.carbon_monoxide) : prev.co,
+              no2: aqData?.current?.nitrogen_dioxide ? String(aqData.current.nitrogen_dioxide) : prev.no2,
+              so2: aqData?.current?.sulphur_dioxide ? String(aqData.current.sulphur_dioxide) : prev.so2,
+              o3: aqData?.current?.ozone ? String(aqData.current.ozone) : prev.o3,
               latitude: Number(latitude),
               longitude: Number(longitude)
             }));
-            setStatus("✅ 天气及位置获取成功");
+            setStatus("✅ 环境与空气质量全数据获取成功");
           }
         } catch (error) {
-          console.error("获取天气失败:", error);
-          setStatus("❌ 获取天气失败，请手动填写");
+          console.error("获取环境数据失败:", error);
+          setStatus("❌ 获取环境数据失败，请手动填写或稍后重试");
         } finally {
           setIsFetchingWeather(false);
         }
@@ -172,6 +213,16 @@ function HomeForm() {
           humidity: formData.humidity ? Number(formData.humidity) : null,
           latitude: formData.latitude !== null ? Number(formData.latitude) : null,
           longitude: formData.longitude !== null ? Number(formData.longitude) : null,
+          pm25: formData.pm25 ? Number(formData.pm25) : null,
+          pm10: formData.pm10 ? Number(formData.pm10) : null,
+          no2: formData.no2 ? Number(formData.no2) : null,
+          o3: formData.o3 ? Number(formData.o3) : null,
+          co: formData.co ? Number(formData.co) : null,
+          so2: formData.so2 ? Number(formData.so2) : null,
+          precipitation: formData.precipitation ? Number(formData.precipitation) : null,
+          pressure: formData.pressure ? Number(formData.pressure) : null,
+          wind_speed: formData.wind_speed ? Number(formData.wind_speed) : null,
+          env_data_source: "Open-Meteo API",
           sleep_quality: Number(formData.sleep_quality),
           stress_level: Number(formData.stress_level)
         })
@@ -251,31 +302,34 @@ function HomeForm() {
         {/* 生活方式 & 饮食 */}
         <div className="pt-4 border-t border-slate-100 space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold text-slate-800">饮食与环境</h3>
+            <h3 className="font-semibold text-slate-800">环境、饮食与暴露</h3>
             <button 
               type="button" 
               onClick={fetchWeather}
               disabled={isFetchingWeather}
               className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full font-medium hover:bg-blue-100 transition-colors disabled:opacity-50 flex items-center gap-1"
             >
-              {isFetchingWeather ? "获取中..." : "📍 自动获取温湿度"}
+              {isFetchingWeather ? "获取中..." : "📍 自动获取全环境数据"}
             </button>
           </div>
+
+          {formData.pm25 && (
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 grid grid-cols-3 gap-2 text-xs text-slate-600">
+              <div>🌡️ {formData.temperature} °C</div>
+              <div>💧 {formData.humidity} %</div>
+              <div>🌧️ {formData.precipitation} mm</div>
+              <div>🌬️ {formData.wind_speed} m/s</div>
+              <div>☁️ 气压 {formData.pressure} hPa</div>
+              <div>😷 PM2.5 {formData.pm25}</div>
+              <div>🌫️ PM10 {formData.pm10}</div>
+              <div>🚗 NO2 {formData.no2}</div>
+              <div>☀️ O3 {formData.o3}</div>
+            </div>
+          )}
           
           <div>
-            <label className="block text-sm text-slate-600 mb-1">特殊饮食 (可能是诱因)</label>
-            <input type="text" name="diet_notes" value={formData.diet_notes} onChange={handleChange} placeholder="例如：吃了很辣的火锅，喝了冰牛奶" className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-             <div>
-              <label className="block text-sm text-slate-600 mb-1">气温 (°C)</label>
-              <input type="number" step="0.1" name="temperature" value={formData.temperature} onChange={handleChange} placeholder="25.5" className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">湿度 (%)</label>
-              <input type="number" step="1" name="humidity" value={formData.humidity} onChange={handleChange} placeholder="45" className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
+            <label className="block text-sm text-slate-600 mb-1">特殊饮食或过敏原接触</label>
+            <input type="text" name="diet_notes" value={formData.diet_notes} onChange={handleChange} placeholder="例如：吃了辣、喝了冰牛奶、去朋友家撸猫了" className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
         </div>
 
