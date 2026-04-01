@@ -83,8 +83,10 @@ def analyze_logs(db: Session, user_id: int) -> str:
 {json.dumps(log_data, ensure_ascii=False, indent=2)}
 """
 
+        print(f"[AI Engine] 使用模型: {ai_model}, 日志数: {len(logs)}")
         model = genai.GenerativeModel(ai_model)
         response = model.generate_content(prompt)
+        print(f"[AI Engine] Gemini调用成功, 响应长度: {len(response.text)}")
         return response.text
 
     except Exception as e:

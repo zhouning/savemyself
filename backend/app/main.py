@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date, datetime, timedelta
 from typing import List
@@ -15,9 +17,29 @@ from .config import settings
 # 数据库表结构应通过单独的脚本或 Alembic 迁移工具来管理。
 
 app = FastAPI(
-    title="SaveMyself API", 
+    title="SaveMyself API",
     description="鼻炎治愈AI探索系统 - v1.0 (Multi-User SaaS)"
 )
+
+# CORS配置：允许前端直接访问后端（绕过Next.js代理的超时限制）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://www.ibiyan.com", "https://ibiyan.com", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 全局异常处理器：确保所有未捕获的异常都返回JSON而非HTML
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    error_detail = traceback.format_exc()
+    print(f"未捕获的异常: {error_detail}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"服务器内部错误: {str(exc)}"}
+    )
 
 # -----------------
 # 真正的安全与认证
