@@ -64,11 +64,11 @@ def analyze_logs(db: Session, user_id: int) -> str:
             }
             log_data.append(log_dict)
 
-        prompt = f”””
+        prompt = f"""
 你现在是一位专业的耳鼻喉科医学数据分析师。
 以下是一位慢性鼻炎患者（{user_info}）最近的日常打卡数据（JSON格式）。
 
-你的任务是仔细分析这些数据，寻找”症状（symptoms）”波动与”环境（environment）”、”生活方式（lifestyle）”、”干预措施（interventions）”之间的潜在关联（Triggers 和 Relievers）。
+你的任务是仔细分析这些数据，寻找"症状（symptoms）"波动与"环境（environment）"、"生活方式（lifestyle）"、"干预措施（interventions）"之间的潜在关联（Triggers 和 Relievers）。
 
 请给出：
 1. **数据洞察**：你发现了哪些相关性？（例如：高湿度、喝牛奶是否会导致症状加重？洗鼻、某类药物是否显著减轻了症状？）
@@ -79,14 +79,14 @@ def analyze_logs(db: Session, user_id: int) -> str:
 
 患者数据：
 {json.dumps(log_data, ensure_ascii=False, indent=2)}
-“””
+"""
 
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         response = model.generate_content(prompt)
         return response.text
 
     except Exception as e:
         import traceback
         error_detail = traceback.format_exc()
-        print(f”AI分析错误: {error_detail}”)
-        return f”AI 分析服务调用失败：{str(e)}”
+        print(f"AI分析错误: {error_detail}")
+        return f"AI 分析服务调用失败：{str(e)}"
